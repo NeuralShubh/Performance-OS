@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NextGen HR OS: Enterprise Platform</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #dfe3ea;
+    --surface: #e4e8ef;
+    --shadow-light: #ffffff;
+    --shadow-dark: #b8bec9;
+    --accent: #4f6ef7;
+    --accent-2: #7c4df7;
+    --accent-3: #f74d8a;
+    --accent-gold: #f5a623;
+    --text-primary: #2d3250;
+    --text-secondary: #6b7a99;
+    --text-muted: #9ba8be;
+    --green: #27ae60;
+    --red: #e74c3c;
+    --nm-convex: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+    --nm-concave: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+    --nm-flat: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    --nm-deep: 10px 10px 25px var(--shadow-dark), -10px -10px 25px var(--shadow-light);
+    --radius: 18px;
+    --radius-lg: 28px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.5;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(223, 227, 234, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+    padding: 16px 0;
+  }
+  nav .inner {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 1200px; margin: 0 auto; padding: 0 28px;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 0 8px rgba(79,110,247,0.5);
+  }
+  .nav-links { display: flex; gap: 8px; }
+  .nav-links a {
+    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.04em;
+    color: var(--text-secondary); text-decoration: none; text-transform: uppercase;
+    padding: 8px 16px; border-radius: 50px;
+    box-shadow: var(--nm-flat);
+    transition: all 0.2s;
+  }
+  .nav-links a:hover {
+    color: var(--accent);
+    box-shadow: var(--nm-concave);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 100px 0 80px;
+    position: relative;
+  }
+  .hero-grid { display: grid; gap: 60px; align-items: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 18px; border-radius: 50px;
+    box-shadow: var(--nm-convex);
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .badge .pulse {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(79,110,247,0.4); }
+    50% { opacity: 0.7; transform: scale(1.1); box-shadow: 0 0 0 6px rgba(79,110,247,0); }
+  }
+  .hero h1 { font-size: clamp(2.2rem, 8vw, 4.2rem); line-height: 1.1; color: var(--text-primary); margin-bottom: 20px; }
+  .hero h1 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-desc {
+    font-size: 1rem; line-height: 1.8; color: var(--text-secondary);
+    margin-bottom: 36px; font-weight: 300;
+  }
+  .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn-primary {
+    padding: 14px 32px; border-radius: 50px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff; font-family: 'Sora', sans-serif;
+    font-size: 0.85rem; font-weight: 600; letter-spacing: 0.04em;
+    border: none; cursor: pointer;
+    box-shadow: 6px 6px 14px var(--shadow-dark), -2px -2px 8px var(--shadow-light),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: all 0.25s;
+    text-decoration: none;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 8px 8px 20px var(--shadow-dark), -2px -2px 8px var(--shadow-light); }
+  .btn-outline {
+    padding: 14px 32px; border-radius: 50px;
+    color: var(--text-primary); font-family: 'Sora', sans-serif;
+    font-size: 0.85rem; font-weight: 600; letter-spacing: 0.04em;
+    border: none; cursor: pointer; background: var(--surface);
+    box-shadow: var(--nm-convex); transition: all 0.25s; text-decoration: none;
+  }
+  .btn-outline:hover { box-shadow: var(--nm-concave); }
+
+  /* ─── HERO CARD (right side) ─── */
+  .hero-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--nm-deep);
+    padding: 32px;
+    animation: floatCard 4s ease-in-out infinite;
+  }
+  @keyframes floatCard {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .hero-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .hero-card-header h4 { font-size: 1.1rem; font-weight: 600; }
+  .status-badge {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+    background: rgba(39,174,96,0.15); color: var(--green);
+    padding: 5px 12px; border-radius: 50px;
+    border: 1px solid rgba(39,174,96,0.3);
+  }
+  .mini-stats { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
+  .mini-stat {
+    background: var(--surface); border-radius: 14px;
+    box-shadow: var(--nm-concave); padding: 14px 10px; text-align: center;
+  }
+  .mini-stat .val { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+  .mini-stat .lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .mini-stat .change { font-size: 0.7rem; color: var(--green); font-weight: 600; }
+  .mini-chart-wrap { border-radius: 14px; overflow: hidden; height: 120px; }
+
+  /* ─── SECTION COMMONS ─── */
+  section { padding: 80px 0; }
+  .section-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .section-title { font-size: clamp(1.8rem, 6vw, 3rem); line-height: 1.15; color: var(--text-primary); margin-bottom: 16px; }
+  .section-sub {
+    font-size: 0.95rem; color: var(--text-secondary);
+    line-height: 1.8; max-width: 560px; font-weight: 300;
+  }
+  .section-header { margin-bottom: 56px; }
+
+  /* ─── STATS ROW ─── */
+  .stats-row { display: grid; gap: 20px; margin-bottom: 80px; }
+  .stat-card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--nm-convex); padding: 28px 24px;
+    position: relative; overflow: hidden;
+    transition: box-shadow 0.3s;
+  }
+  .stat-card:hover { box-shadow: var(--nm-deep); }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+  .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent-3), #ff8c42); }
+  .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--green), #2ecc71); }
+  .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--accent-gold), #e67e22); }
+  .stat-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 16px;
+    box-shadow: var(--nm-convex);
+  }
+  .stat-card:nth-child(1) .stat-icon { background: rgba(79,110,247,0.1); }
+  .stat-card:nth-child(2) .stat-icon { background: rgba(247,77,138,0.1); }
+  .stat-card:nth-child(3) .stat-icon { background: rgba(39,174,96,0.1); }
+  .stat-card:nth-child(4) .stat-icon { background: rgba(245,166,35,0.1); }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 5vw, 2.4rem); font-weight: 700; line-height: 1; margin-bottom: 6px; color: var(--text-primary); }
+  .stat-lbl { font-size: 0.78rem; color: var(--text-secondary); font-weight: 400; }
+  .stat-trend { font-size: 0.72rem; font-weight: 600; color: var(--green); margin-top: 8px; }
+
+  /* ─── FEATURES GRID ─── */
+  .features-grid { display: grid; gap: 24px; }
+  .feature-card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--nm-convex); padding: 28px;
+    transition: all 0.3s; cursor: default;
+    position: relative; overflow: hidden;
+  }
+  .feature-card:hover { box-shadow: var(--nm-deep); transform: translateY(-3px); }
+  .feature-card.full { grid-column: 1 / -1; }
+  .feat-icon-wrap {
+    width: 52px; height: 52px; border-radius: 14px;
+    box-shadow: var(--nm-convex);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-bottom: 18px;
+  }
+  .feature-card h3 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; }
+  .feature-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; font-weight: 300; }
+  .feat-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .feat-tag {
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;
+    padding: 5px 12px; border-radius: 50px;
+    background: var(--surface); box-shadow: var(--nm-concave);
+    color: var(--text-secondary);
+  }
+
+  /* ─── PORTAL SPLIT ─── */
+  .portal-split { display: grid; gap: 28px; }
+  .portal-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--nm-deep); padding: 36px; position: relative;
+  }
+  .portal-label {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 6px 14px; border-radius: 50px;
+    display: inline-block; margin-bottom: 20px;
+  }
+  .portal-admin .portal-label { background: rgba(79,110,247,0.12); color: var(--accent); }
+  .portal-emp .portal-label { background: rgba(247,77,138,0.12); color: var(--accent-3); }
+  .portal-card h3 { font-size: 1.8rem; margin-bottom: 8px; }
+  .portal-card > p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 28px; font-weight: 300; line-height: 1.7; }
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .feature-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 0.83rem; color: var(--text-secondary); line-height: 1.55;
+  }
+  .feat-check {
+    width: 22px; height: 22px; border-radius: 8px;
+    box-shadow: var(--nm-convex);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; flex-shrink: 0; margin-top: 1px;
+  }
+  .portal-admin .feat-check { color: var(--accent); }
+  .portal-emp .feat-check { color: var(--accent-3); }
+
+  /* ─── PROBLEMS GRID ─── */
+  .problems-grid { display: grid; gap: 20px; }
+  .problem-card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--nm-convex); padding: 24px;
+    position: relative; overflow: hidden;
+    transition: box-shadow 0.3s;
+  }
+  .problem-card:hover { box-shadow: var(--nm-deep); }
+  .problem-icon { font-size: 1.8rem; margin-bottom: 14px; display: block; }
+  .problem-card h4 { font-size: 1.1rem; margin-bottom: 8px; font-weight: 600; }
+  .problem-card p { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7; font-weight: 300; }
+  .arrow-badge {
+    position: absolute; top: 20px; right: 20px;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em;
+    padding: 4px 10px; border-radius: 50px;
+    background: rgba(39,174,96,0.12); color: var(--green);
+  }
+
+  /* ─── ROI SECTION ─── */
+  .roi-section { background: var(--surface); }
+  .roi-grid { display: grid; gap: 56px; align-items: center; }
+  .roi-cards { display: flex; flex-direction: column; gap: 18px; }
+  .roi-card {
+    background: var(--bg); border-radius: var(--radius);
+    box-shadow: var(--nm-convex); padding: 22px 26px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .roi-icon {
+    width: 50px; height: 50px; border-radius: 14px;
+    box-shadow: var(--nm-convex); display: flex;
+    align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+  }
+  .roi-card h4 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+  .roi-card p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; font-weight: 300; }
+  .roi-highlight {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem; font-weight: 700; color: var(--green);
+  }
+  .roi-big-card {
+    background: var(--bg); border-radius: var(--radius-lg);
+    box-shadow: var(--nm-deep); padding: 40px; text-align: center;
+  }
+  .roi-big-card .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
+  .roi-big-num { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 8vw, 3.2rem); font-weight: 700; line-height: 1; background: linear-gradient(135deg, var(--green), #27ae60 50%, #2ecc71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  .roi-big-sub { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7; margin-top: 12px; }
+  .roi-divider {
+    height: 1px; background: linear-gradient(90deg, transparent, var(--shadow-dark), transparent);
+    margin: 24px 0;
+  }
+  .roi-breakdown { display: flex; flex-direction: column; gap: 10px; }
+  .roi-row { display: flex; justify-content: space-between; align-items: center; }
+  .roi-row span { font-size: 0.78rem; color: var(--text-secondary); font-weight: 300; }
+  .roi-row strong { font-size: 0.82rem; color: var(--text-primary); font-weight: 600; }
+
+  /* ─── CHARTS SECTION ─── */
+  .charts-grid { display: grid; gap: 24px; }
+  .chart-card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--nm-convex); padding: 28px;
+    transition: box-shadow 0.3s;
+  }
+  .chart-card:hover { box-shadow: var(--nm-deep); }
+  .chart-card.wide { grid-column: span 2; }
+  .chart-card h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+  .chart-card .chart-sub { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 20px; }
+  .chart-wrap { position: relative; height: 200px; }
+
+  /* ─── LEADERBOARD ─── */
+  .leaderboard-wrap {
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--nm-deep); padding: 36px; overflow: hidden;
+  }
+  .lb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+  .lb-header h3 { font-size: 1.6rem; }
+  .live-dot {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; font-weight: 600; color: var(--green);
+  }
+  .live-dot::before {
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 6px rgba(39,174,96,0.5);
+  }
+  .lb-table { width: 100%; border-collapse: collapse; }
+  .lb-table th {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 0 0 12px; text-align: left;
+    border-bottom: 1px solid rgba(180,190,210,0.4);
+  }
+  .lb-table td { padding: 14px 0; border-bottom: 1px solid rgba(180,190,210,0.2); vertical-align: middle; }
+  .lb-table tr:last-child td { border-bottom: none; }
+  .lb-rank {
+    width: 28px; height: 28px; border-radius: 10px;
+    box-shadow: var(--nm-convex); display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);
+  }
+  .lb-rank.gold { background: linear-gradient(135deg, #f5a623, #f0c040); color: #fff; box-shadow: 2px 2px 8px rgba(245,166,35,0.4); }
+  .lb-rank.silver { background: linear-gradient(135deg, #b2bec3, #dfe6e9); color: #636e72; box-shadow: 2px 2px 8px rgba(178,190,195,0.4); }
+  .lb-rank.bronze { background: linear-gradient(135deg, #e17055, #d35400); color: #fff; box-shadow: 2px 2px 8px rgba(225,112,85,0.4); }
+  .lb-avatar {
+    width: 36px; height: 36px; border-radius: 12px;
+    box-shadow: var(--nm-convex); display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 0.9rem; font-weight: 600; color: #fff;
+    margin-right: 10px;
+  }
+  .lb-name { font-size: 0.85rem; font-weight: 600; }
+  .lb-dept { font-size: 0.72rem; color: var(--text-muted); }
+  .lb-progress-wrap { width: 120px; }
+  .lb-progress-track {
+    height: 6px; border-radius: 50px;
+    background: var(--bg); box-shadow: var(--nm-concave);
+    overflow: hidden;
+  }
+  .lb-progress-fill {
+    height: 100%; border-radius: 50px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width 1s ease;
+  }
+  .lb-pct { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); text-align: right; margin-top: 4px; }
+  .lb-earning { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+  .lb-earn-sub { font-size: 0.68rem; color: var(--green); }
+
+  /* ─── UX SECTION ─── */
+  .ux-grid { display: grid; gap: 20px; }
+  .ux-card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--nm-convex); padding: 28px 22px; text-align: center;
+    transition: all 0.3s;
+  }
+  .ux-card:hover { box-shadow: var(--nm-deep); transform: translateY(-4px); }
+  .ux-icon {
+    width: 56px; height: 56px; border-radius: 18px;
+    box-shadow: var(--nm-convex);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; margin: 0 auto 18px;
+  }
+  .ux-card h4 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+  .ux-card p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7; font-weight: 300; }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    text-align: center; padding: 100px 0;
+    background: var(--bg);
+  }
+  .cta-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--nm-deep); padding: 72px 60px;
+    position: relative; overflow: hidden; max-width: 800px; margin: 0 auto;
+  }
+  .cta-card::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(79,110,247,0.08), transparent);
+    pointer-events: none;
+  }
+  .cta-card::after {
+    content: ''; position: absolute; bottom: -60px; left: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(247,77,138,0.06), transparent);
+    pointer-events: none;
+  }
+  .cta-card h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px; }
+  .cta-card p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 36px; line-height: 1.8; font-weight: 300; }
+  .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--surface); border-top: 1px solid rgba(180,190,210,0.4);
+    padding: 32px 0; text-align: center;
+  }
+  footer p { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* ─── ANIMATIONS ─── */
+  .fade-up { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── RESPONSIVE (MOBILE FIRST) ─── */
+  .hero-grid, .portal-split, .roi-grid, .charts-grid { grid-template-columns: 1fr; }
+  .stats-row, .ux-grid, .problems-grid, .features-grid { grid-template-columns: 1fr; }
+  .chart-card.wide { grid-column: auto; }
+  .nav-links { display: none; }
+  .cta-card { padding: 48px 28px; }
+
+  @media (min-width: 600px) {
+    .stats-row, .ux-grid, .problems-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 900px) {
+    .hero-grid, .portal-split { grid-template-columns: 1fr 1fr; }
+    .roi-grid { grid-template-columns: 1.1fr 0.9fr; }
+    .charts-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .stats-row, .ux-grid { grid-template-columns: repeat(4, 1fr); }
+    .problems-grid { grid-template-columns: repeat(3, 1fr); }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .chart-card.wide { grid-column: span 2; }
+    .nav-links { display: flex; }
+    .cta-card { padding: 72px 60px; }
+  }
+
+  @media(min-width: 600px) {
+    .mini-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+  .feat-full-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+  @media(min-width: 900px) {
+    .feat-full-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+
+  /* ─── STRICT MOBILE RESPONSIVENESS OVERRIDES ─── */
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; width: 100%; max-width: 100vw; margin: 0; padding: 0; }
+  
+  /* The golden rule to prevent Grid/Flex blowouts from Canvas/Images */
+  .hero-grid > div, .features-grid > div, .charts-grid > div, .roi-grid > div, .stats-row > div, .ux-grid > div, .problems-grid > div, .portal-split > div {
+      min-width: 0;
+      max-width: 100%;
+  }
+  
+  /* Canvas fixes */
+  canvas { max-width: 100% !important; display: block; }
+  .chart-wrap, .mini-chart-wrap { 
+      width: 100%; 
+      position: relative; 
+      min-width: 0; 
+  }
+  
+  .container { max-width: 100vw; overflow-x: hidden; }
+  
+  @media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    .hero { padding: 60px 0 40px; }
+    .hero-card, .chart-card, .feature-card, .problem-card, .ux-card, .stat-card { padding: 16px; }
+    .portal-card { padding: 20px; }
+    .roi-card { padding: 16px; flex-direction: column; align-items: flex-start; text-align: left; }
+    .roi-big-card { padding: 20px; }
+    .cta-card { padding: 40px 20px; }
+    .mini-stat { padding: 10px 8px; }
+    
+    .feat-tags { gap: 6px; flex-wrap: wrap; }
+    .feat-tag { padding: 4px 10px; font-size: 0.65rem; white-space: normal; }
+    
+    h1 { font-size: clamp(1.8rem, 7vw, 2.5rem); }
+    h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
+    h3 { font-size: clamp(1.2rem, 5vw, 1.5rem); }
+    h4 { font-size: clamp(1rem, 4vw, 1.2rem); }
+    p, span, div { word-break: break-word; overflow-wrap: break-word; }
+    
+    .hero h1 { word-break: break-word; overflow-wrap: break-word; hyphens: auto; }
+    
+    /* Ensure no text overflows its container */
+    .hero-card-header h4, .stat-lbl, .lbl { font-size: 0.9rem; }
+  }
+
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="inner">
+    <div class="nav-logo"><span class="dot"></span>NextGen HR OS</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#portals">Portals</a>
+      <a href="#roi">ROI</a>
+      <a href="#analytics">Analytics</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-left fade-up">
+        <div class="badge"><span class="pulse"></span>Enterprise Ready · Premium Build</div>
+        <h1>The <em>Unified</em> HR, Payroll & Performance OS</h1>
+        <p class="hero-desc">Replace fragmented spreadsheets and manual processes with one intelligent, gamified platform, built to scale with your growing enterprise.</p>
+        <div class="hero-cta">
+          <a href="#roi" class="btn-primary">See the ROI →</a>
+          <a href="#features" class="btn-outline">Explore Features</a>
+        </div>
+      </div>
+      <div class="hero-right fade-up" style="transition-delay:0.15s">
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <h4>Company Dashboard</h4>
+            <span class="status-badge">● Live</span>
+          </div>
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <div class="val">247</div>
+              <div class="lbl">Employees</div>
+              <div class="change">↑ 12%</div>
+            </div>
+            <div class="mini-stat">
+              <div class="val">94%</div>
+              <div class="lbl">Attendance</div>
+              <div class="change">↑ 3%</div>
+            </div>
+            <div class="mini-stat">
+              <div class="val">₹0</div>
+              <div class="lbl">Errors</div>
+              <div class="change">✓ Clean</div>
+            </div>
+          </div>
+          <div class="mini-chart-wrap">
+            <canvas id="heroChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS ROW -->
+<div class="container">
+  <div class="stats-row">
+    <div class="stat-card fade-up">
+      <div class="stat-icon"><i class="ph ph-clock"></i></div>
+      <div class="stat-num" data-target="30">0</div>
+      <div class="stat-lbl">Hours Saved on Payroll / Month</div>
+      <div class="stat-trend">↑ vs. manual processing</div>
+    </div>
+    <div class="stat-card fade-up" style="transition-delay:0.1s">
+      <div class="stat-icon"><i class="ph ph-coins"></i></div>
+      <div class="stat-num" data-target="10" data-suffix="%">0%</div>
+      <div class="stat-lbl">Payroll Leakage Reduced</div>
+      <div class="stat-trend">↑ via strict attendance rules</div>
+    </div>
+    <div class="stat-card fade-up" style="transition-delay:0.2s">
+      <div class="stat-icon"><i class="ph ph-trend-up"></i></div>
+      <div class="stat-num" data-target="5" data-prefix="₹" data-suffix="L+">₹0L+</div>
+      <div class="stat-lbl">Annual Savings (50 Employees)</div>
+      <div class="stat-trend">↑ bottom-line impact</div>
+    </div>
+    <div class="stat-card fade-up" style="transition-delay:0.3s">
+      <div class="stat-icon"><i class="ph ph-trophy"></i></div>
+      <div class="stat-num" data-target="0" data-suffix=" Errors">0 Errors</div>
+      <div class="stat-lbl">Payroll Calculation Errors</div>
+      <div class="stat-trend">↑ fully automated logic</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Admin Command Center</div>
+      <h2 class="section-title">Everything You Need,<br/>In One Dashboard</h2>
+      <p class="section-sub">The Admin Portal gives you complete command over workforce, financials, and performance, all from a single, beautifully designed interface.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feat-icon-wrap" style="background:rgba(79,110,247,0.1)"><i class="ph ph-chart-bar"></i></div>
+        <h3>Executive Dashboard</h3>
+        <p>Real-time overview of active employees, daily attendance rates, and company-wide performance metrics. Quick-action widgets for pending approvals and high-level financial summaries for the current payroll cycle.</p>
+        <div class="feat-tags">
+          <span class="feat-tag">Live Data</span>
+          <span class="feat-tag">Quick Actions</span>
+          <span class="feat-tag">Financial Overview</span>
+        </div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.1s">
+        <div class="feat-icon-wrap" style="background:rgba(247,77,138,0.1)"><i class="ph ph-users"></i></div>
+        <h3>Employee Management</h3>
+        <p>Centralized database for adding, editing, and archiving employee profiles. Full Role & Access Control (Admin vs. Employee) with Branch Assignment to link staff to specific physical locations.</p>
+        <div class="feat-tags">
+          <span class="feat-tag">Role Control</span>
+          <span class="feat-tag">Centralized DB</span>
+          <span class="feat-tag">Branch Links</span>
+        </div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.15s">
+        <div class="feat-icon-wrap" style="background:rgba(39,174,96,0.1)"><i class="ph ph-clock-countdown"></i></div>
+        <h3>Attendance & Time Tracking</h3>
+        <p>Live attendance ledger with daily clock-ins, clock-outs, and total hours worked. Admins can manually correct missed punches, and the system auto-flags absent or late employees based on shift rules.</p>
+        <div class="feat-tags">
+          <span class="feat-tag">Live Ledger</span>
+          <span class="feat-tag">Manual Overrides</span>
+          <span class="feat-tag">Auto-Flagging</span>
+        </div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.2s">
+        <div class="feat-icon-wrap" style="background:rgba(245,166,35,0.1)"><i class="ph ph-calendar-check"></i></div>
+        <h3>Leave & Exemption Management</h3>
+        <p>Centralized leave request inbox for approvals or rejections. Manage penalty exemptions for valid late arrivals and automatically deduct approved leaves from annual quotas.</p>
+        <div class="feat-tags">
+          <span class="feat-tag">Approval Queue</span>
+          <span class="feat-tag">Penalty Exemptions</span>
+          <span class="feat-tag">Auto Deduction</span>
+        </div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.1s">
+        <div class="feat-icon-wrap" style="background:rgba(124,77,247,0.1)"><i class="ph ph-credit-card"></i></div>
+        <h3>Complete Payroll Engine</h3>
+        <p>One-click automated payroll generation based on base salary, days worked, bonuses, and penalties. Generates standard PDF payslips and maintains historical ledgers for audit and tax purposes.</p>
+        <div class="feat-tags">
+          <span class="feat-tag">One-Click Payroll</span>
+          <span class="feat-tag">PDF Payslips</span>
+          <span class="feat-tag">Historical Ledger</span>
+        </div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.15s">
+        <div class="feat-icon-wrap" style="background:rgba(231,76,60,0.1)"><i class="ph ph-map-pin"></i></div>
+        <h3>Location & Branch Logistics</h3>
+        <p>Live GPS-based location viewer tracks physical check-in locations of field employees. Create and manage multiple office branches from a single management interface.</p>
+        <div class="feat-tags">
+          <span class="feat-tag">GPS Tracking</span>
+          <span class="feat-tag">Multi-Branch</span>
+          <span class="feat-tag">Field Staff</span>
+        </div>
+      </div>
+      <div class="feature-card full fade-up" style="transition-delay:0.2s">
+        <div class="feat-full-grid">
+          <div>
+            <div class="feat-icon-wrap" style="background:rgba(79,110,247,0.1)"><i class="ph ph-trophy"></i></div>
+            <h3>Performance Gamification & Leaderboard</h3>
+            <p>Assign daily/weekly/monthly targets to individuals or entire branches. A live company-wide leaderboard ranks employees based on targets achieved, driving healthy competition. Visual charts map performance trends over time, connecting output directly to incentives.</p>
+            <div class="feat-tags" style="margin-top:16px">
+              <span class="feat-tag">Target Setting</span>
+              <span class="feat-tag">Live Ranking</span>
+              <span class="feat-tag">Incentive Tracking</span>
+              <span class="feat-tag">Trend Charts</span>
+            </div>
+          </div>
+          <div>
+            <canvas id="performanceChart" height="180"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTALS SECTION -->
+<section id="portals" style="background: var(--surface)">
+  <div class="container">
+    <div class="section-header fade-up" style="text-align:center; max-width:600px; margin:0 auto 56px;">
+      <div class="section-label">Dual-Interface Design</div>
+      <h2 class="section-title">Two Portals.<br/>One Seamless System.</h2>
+      <p class="section-sub" style="margin:0 auto">A powerful admin command center paired with a frictionless mobile-first employee portal, each designed for its specific user.</p>
+    </div>
+    <div class="portal-split fade-up">
+      <div class="portal-card portal-admin">
+        <span class="portal-label"><i class="ph ph-gear"></i> Admin Portal</span>
+        <h3>Command Center</h3>
+        <p>Full organizational control from workforce to financials to performance metrics in one authoritative interface.</p>
+        <ul class="feature-list">
+          <li><span class="feat-check">✦</span>Real-time executive dashboard with financial summaries</li>
+          <li><span class="feat-check">✦</span>Role-based access control (Admin vs. Employee)</li>
+          <li><span class="feat-check">✦</span>Live attendance ledger with manual override capability</li>
+          <li><span class="feat-check">✦</span>Leave & penalty exemption approval queue</li>
+          <li><span class="feat-check">✦</span>One-click automated payroll generation & PDF payslips</li>
+          <li><span class="feat-check">✦</span>Ad-hoc bonuses, penalties & automated commissions</li>
+          <li><span class="feat-check">✦</span>Company-wide gamified leaderboard & target setting</li>
+          <li><span class="feat-check">✦</span>GPS location viewer for field employees</li>
+          <li><span class="feat-check">✦</span>Meeting manager & campaign/scheme tracking</li>
+          <li><span class="feat-check">✦</span>Advanced CSV/PDF reporting with custom filters</li>
+        </ul>
+      </div>
+      <div class="portal-card portal-emp">
+        <span class="portal-label"><i class="ph ph-device-mobile"></i> Employee Portal</span>
+        <h3>Self-Service Hub</h3>
+        <p>Optimized for mobile: a clean, intuitive interface that gives employees everything they need without the clutter.</p>
+        <ul class="feature-list">
+          <li><span class="feat-check">✦</span>Personal dashboard with today's goals & attendance status</li>
+          <li><span class="feat-check">✦</span>One-tap Clock-In / Clock-Out toggle</li>
+          <li><span class="feat-check">✦</span>Daily sales / task / shift report submission</li>
+          <li><span class="feat-check">✦</span>Proof attachment upload for documentation</li>
+          <li><span class="feat-check">✦</span>Visual performance vs. target progress bars</li>
+          <li><span class="feat-check">✦</span>Real-time earning projections based on performance</li>
+          <li><span class="feat-check">✦</span>Gamified peer leaderboard ranking</li>
+          <li><span class="feat-check">✦</span>Leave request form (sick, vacation, half-day)</li>
+          <li><span class="feat-check">✦</span>Live status tracking for pending requests</li>
+          <li><span class="feat-check">✦</span>Installable as APK / PWA on Android</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS SECTION -->
+<section>
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Problem → Solution</div>
+      <h2 class="section-title">The 5 Real Problems<br/>This Platform Eliminates</h2>
+      <p class="section-sub">Built specifically to replace the fragmented, error-prone systems most growing businesses are stuck with.</p>
+    </div>
+    <div class="problems-grid">
+      <div class="problem-card fade-up">
+        <span class="problem-icon"><i class="ph ph-clipboard-text"></i></span>
+        <span class="arrow-badge">Solved ✓</span>
+        <h4>Administrative Bottlenecks</h4>
+        <p>Replaces manual Excel sheets and fragmented tools with a single source of truth, eliminating end-of-month data entry marathons.</p>
+      </div>
+      <div class="problem-card fade-up" style="transition-delay:0.1s">
+        <span class="problem-icon"><i class="ph ph-calculator"></i></span>
+        <span class="arrow-badge">Solved ✓</span>
+        <h4>Payroll Errors & Overpayments</h4>
+        <p>Eliminates human error in calculating deductions for late arrivals, unpaid leaves, and complex commission structures.</p>
+      </div>
+      <div class="problem-card fade-up" style="transition-delay:0.15s">
+        <span class="problem-icon"><i class="ph ph-user-focus"></i></span>
+        <span class="arrow-badge">Solved ✓</span>
+        <h4>Time Theft</h4>
+        <p>The GPS location viewer and strict attendance logs prevent "buddy punching" to guarantee you only pay for genuinely worked hours.</p>
+      </div>
+      <div class="problem-card fade-up" style="transition-delay:0.2s">
+        <span class="problem-icon"><i class="ph ph-smiley-sad"></i></span>
+        <span class="arrow-badge">Solved ✓</span>
+        <h4>Low Employee Motivation</h4>
+        <p>Transparent leaderboards and "My Stats" push employees to perform naturally, without direct managerial nagging or micromanagement.</p>
+      </div>
+      <div class="problem-card fade-up" style="transition-delay:0.25s">
+        <span class="problem-icon"><i class="ph ph-shuffle"></i></span>
+        <span class="arrow-badge">Solved ✓</span>
+        <h4>Data Silos</h4>
+        <p>Connects daily operational data directly to the payroll engine, requiring no data entry duplication at month-end.</p>
+      </div>
+      <div class="problem-card fade-up" style="transition-delay:0.3s; background: linear-gradient(135deg, rgba(79,110,247,0.08), rgba(124,77,247,0.08));">
+        <span class="problem-icon"><i class="ph ph-lightning"></i></span>
+        <h4>The Result</h4>
+        <p style="color: var(--text-primary); font-weight:500">One unified platform that saves time, reduces costs, boosts revenue, and runs your HR entirely on autopilot from Day 1.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROI SECTION -->
+<section id="roi" class="roi-section">
+  <div class="container">
+    <div class="roi-grid">
+      <div class="fade-up">
+        <div class="section-label">Return on Investment</div>
+        <h2 class="section-title">Numbers That Speak<br/>For Themselves</h2>
+        <p class="section-sub" style="margin-bottom:36px">For a team of ~50 employees, the platform delivers measurable, compounding savings from month one.</p>
+        <div class="roi-cards">
+          <div class="roi-card">
+            <div class="roi-icon" style="background:rgba(79,110,247,0.1)"><i class="ph ph-clock"></i></div>
+            <div>
+              <h4>Administrative Time Saved</h4>
+              <p>Automated payroll cuts a multi-day process to a few clicks.</p>
+              <div class="roi-highlight">~200 hours/year · ₹60K–₹75K value</div>
+            </div>
+          </div>
+          <div class="roi-card">
+            <div class="roi-icon" style="background:rgba(39,174,96,0.1)"><i class="ph ph-shield-check"></i></div>
+            <div>
+              <h4>Reduced Time Theft & Errors</h4>
+              <p>Strict attendance rules eliminate ~5% payroll leakage.</p>
+              <div class="roi-highlight">₹4,00,000–₹5,00,000/year recovered</div>
+            </div>
+          </div>
+          <div class="roi-card">
+            <div class="roi-icon" style="background:rgba(245,166,35,0.1)"><i class="ph ph-trend-up"></i></div>
+            <div>
+              <h4>Revenue via Gamification</h4>
+              <p>Leaderboards & targets consistently increase sales output.</p>
+              <div class="roi-highlight">Scales linearly with team size</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fade-up" style="transition-delay:0.2s">
+        <div class="roi-big-card">
+          <div class="eyebrow">Total Annual Bottom-Line Impact</div>
+          <div class="roi-big-num" id="roiCounter">₹0</div>
+          <div style="font-size:0.78rem; color:var(--text-muted)">For ~50 Employees</div>
+          <div class="roi-divider"></div>
+          <div class="roi-breakdown">
+            <div class="roi-row">
+              <span>HR Admin Time Saved</span>
+              <strong>₹60,000 – ₹75,000</strong>
+            </div>
+            <div class="roi-row">
+              <span>Payroll Leakage Recovered</span>
+              <strong>₹4,00,000 – ₹5,00,000</strong>
+            </div>
+            <div class="roi-row">
+              <span>Error Elimination</span>
+              <strong>Included ✓</strong>
+            </div>
+            <div class="roi-divider"></div>
+            <div class="roi-row">
+              <span style="font-weight:600; color:var(--text-primary)">Total Estimated Savings</span>
+              <strong style="color:var(--green); font-size:1rem">₹4.6L – ₹5.75L+</strong>
+            </div>
+          </div>
+          <div class="roi-big-sub">Scales linearly with workforce size. 200 employees = ~4× the impact.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYTICS / CHARTS -->
+<section id="analytics">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Analytics & Reporting</div>
+      <h2 class="section-title">Data-Driven Decisions,<br/>Always.</h2>
+      <p class="section-sub">Real-time charts and visual dashboards give leadership and employees instant clarity on performance, attendance, and financials.</p>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card wide fade-up">
+        <h4>Monthly Payroll Overview</h4>
+        <div class="chart-sub">Gross pay, bonuses & deductions across 6 months</div>
+        <div class="chart-wrap"><canvas id="payrollChart"></canvas></div>
+      </div>
+      <div class="chart-card fade-up" style="transition-delay:0.1s">
+        <h4>Attendance Rate</h4>
+        <div class="chart-sub">Present vs. Absent distribution</div>
+        <div class="chart-wrap"><canvas id="attendanceChart"></canvas></div>
+      </div>
+      <div class="chart-card fade-up" style="transition-delay:0.05s">
+        <h4>Target Achievement</h4>
+        <div class="chart-sub">By department this month</div>
+        <div class="chart-wrap"><canvas id="targetChart"></canvas></div>
+      </div>
+      <div class="chart-card fade-up" style="transition-delay:0.1s">
+        <h4>Employee Growth</h4>
+        <div class="chart-sub">Headcount over 6 months</div>
+        <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD SECTION -->
+<section style="background: var(--surface)">
+  <div class="container">
+    <div class="section-header fade-up" style="text-align:center; max-width:600px; margin:0 auto 48px;">
+      <div class="section-label">Gamification Engine</div>
+      <h2 class="section-title">Live Performance<br/>Leaderboard</h2>
+      <p class="section-sub" style="margin:0 auto">Transparent rankings create natural motivation, as employees see exactly how their performance impacts their paycheck.</p>
+    </div>
+    <div class="leaderboard-wrap fade-up">
+      <div class="lb-header">
+        <h3>Company Leaderboard: May 2026</h3>
+        <div class="live-dot">LIVE</div>
+      </div>
+      <div class="table-responsive">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th style="width:50px">Rank</th>
+            <th>Employee</th>
+            <th>Target Progress</th>
+            <th style="text-align:right">Earnings</th>
+          </tr>
+        </thead>
+        <tbody id="lbBody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UX SECTION -->
+<section id="ux">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">User Experience</div>
+      <h2 class="section-title">Designed for People,<br/>Not Just Admins</h2>
+      <p class="section-sub">Zero friction at every level, from field employees on Android to executives approving payroll from their phones.</p>
+    </div>
+    <div class="ux-grid">
+      <div class="ux-card fade-up">
+        <div class="ux-icon" style="background:rgba(79,110,247,0.1)"><i class="ph ph-download-simple"></i></div>
+        <h4>Installable as APK / PWA</h4>
+        <p>Employees install it directly on Android devices - full-screen, custom icon, native app experience. No browser navigation needed.</p>
+      </div>
+      <div class="ux-card fade-up" style="transition-delay:0.1s">
+        <div class="ux-icon" style="background:rgba(247,77,138,0.1)"><i class="ph ph-sparkle"></i></div>
+        <h4>Neumorphic / Glassmorphic UI</h4>
+        <p>Premium "detail-first" design aesthetic. Data tables open into clean, distraction-free modals - not cluttered action-heavy rows.</p>
+      </div>
+      <div class="ux-card fade-up" style="transition-delay:0.2s">
+        <div class="ux-icon" style="background:rgba(39,174,96,0.1)"><i class="ph ph-device-mobile"></i></div>
+        <h4>Fully Mobile-Responsive</h4>
+        <p>Field employees submit data, request leaves, and check stats on the go - while admins approve payroll from their phones.</p>
+      </div>
+      <div class="ux-card fade-up" style="transition-delay:0.3s">
+        <div class="ux-icon" style="background:rgba(245,166,35,0.1)"><i class="ph ph-lightning"></i></div>
+        <h4>Zero Learning Curve</h4>
+        <p>Employee portals show only what's relevant. Admins set automation rules once, and the system applies them globally forever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contact" class="cta-section">
+  <div class="container">
+    <div class="cta-card fade-up">
+      <div class="badge" style="margin:0 auto 24px; display:inline-flex"><span class="pulse"></span>Ready to Scale</div>
+      <h2>Transform Your Business<br/>With NextGen HR OS</h2>
+      <p>Built for ambitious enterprises. Integrate our complete suite of features, streamline your workflow, and empower your workforce with an intelligent AI chatbot that can answer complex questions straight from your software and database.</p>
+      <div style="margin-top: 32px; display: flex; justify-content: center;">
+        <a href="https://wa.me/919579266234" style="display: inline-flex; align-items: center; gap: 10px; background: #25D366; color: #fff; text-decoration: none; font-size: 1.1rem; font-weight: 600; padding: 16px 36px; border-radius: 50px; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3), var(--nm-flat); transition: transform 0.2s, box-shadow 0.2s;">
+          <i class="ph ph-whatsapp-logo" style="font-size: 1.6rem;"></i>
+          Chat on WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 NextGen HR OS: All-in-One HR, Payroll & Performance Platform</p>
+</footer>
+
+<script>
+// ─── INTERSECTION OBSERVER (fade-up) ───
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// ─── COUNTER ANIMATION ───
+function animateCounter(el, target, prefix = '', suffix = '') {
+  let current = 0;
+  const step = Math.max(1, Math.floor(target / 60));
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = prefix + current + suffix;
+    if (current >= target) clearInterval(timer);
+  }, 25);
+}
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target;
+      const target = +el.dataset.target;
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      animateCounter(el, target, prefix, suffix);
+      counterObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-num[data-target]').forEach(el => counterObs.observe(el));
+
+// ROI Counter
+const roiEl = document.getElementById('roiCounter');
+const roiObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    let v = 0;
+    const t = setInterval(() => {
+      v = Math.min(v + 23000, 460000);
+      roiEl.textContent = '₹' + (v / 100000).toFixed(1) + 'L+';
+      if (v >= 460000) clearInterval(t);
+    }, 20);
+    roiObs.unobserve(roiEl);
+  }
+}, { threshold: 0.5 });
+roiObs.observe(roiEl);
+
+// ─── CHART.JS DEFAULTS ───
+const nm = getComputedStyle(document.documentElement);
+const C = {
+  bg: '#dfe3ea', surface: '#e4e8ef',
+  accent: '#4f6ef7', accent2: '#7c4df7', accent3: '#f74d8a',
+  green: '#27ae60', gold: '#f5a623',
+  text: '#2d3250', muted: '#9ba8be'
+};
+Chart.defaults.font.family = "'Sora', sans-serif";
+Chart.defaults.color = C.muted;
+Chart.defaults.plugins.legend.display = false;
+
+// ─── HERO MINI CHART ───
+new Chart(document.getElementById('heroChart'), {
+  type: 'line',
+  data: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [{
+      data: [88,91,87,95,93,97,94],
+      borderColor: C.accent, borderWidth: 2.5,
+      fill: true, tension: 0.45,
+      backgroundColor: 'rgba(79,110,247,0.12)',
+      pointRadius: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { display: false }, y: { display: false, min: 80 }
+    },
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    animation: { duration: 1800, easing: 'easeInOutQuart' }
+  }
+});
+
+// ─── PERFORMANCE CHART ───
+new Chart(document.getElementById('performanceChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Wk 1','Wk 2','Wk 3','Wk 4'],
+    datasets: [
+      { label: 'Target', data: [100,100,100,100], backgroundColor: 'rgba(159,168,210,0.3)', borderRadius: 6 },
+      { label: 'Achieved', data: [88,104,97,112], backgroundColor: C.accent, borderRadius: 6 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, labels: { font: { size: 11 }, color: C.muted } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: C.muted } },
+      y: { grid: { color: 'rgba(180,190,210,0.25)' }, ticks: { color: C.muted } }
+    },
+    animation: { duration: 1600, easing: 'easeOutBack' }
+  }
+});
+
+// ─── PAYROLL CHART ───
+new Chart(document.getElementById('payrollChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Dec','Jan','Feb','Mar','Apr','May'],
+    datasets: [
+      { label: 'Base Pay', data: [1240,1280,1260,1310,1350,1390], backgroundColor: C.accent, borderRadius: 6, stack: 'a' },
+      { label: 'Bonuses', data: [120,145,110,180,200,230], backgroundColor: C.green, borderRadius: 6, stack: 'a' },
+      { label: 'Deductions', data: [-80,-60,-90,-50,-45,-40], backgroundColor: C.accent3, borderRadius: 6, stack: 'a' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, labels: { font: { size: 11 }, color: C.muted } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: C.muted }, stacked: true },
+      y: { grid: { color: 'rgba(180,190,210,0.25)' }, ticks: { color: C.muted, callback: v => '₹' + v + 'K' }, stacked: true }
+    },
+    animation: { duration: 1800, easing: 'easeOutQuart' }
+  }
+});
+
+// ─── ATTENDANCE DOUGHNUT ───
+new Chart(document.getElementById('attendanceChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Present','Late','Absent'],
+    datasets: [{
+      data: [78, 13, 9],
+      backgroundColor: [C.green, C.gold, C.accent3],
+      borderWidth: 0, hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '68%',
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, color: C.muted, padding: 12 } }
+    },
+    animation: { duration: 1500, easing: 'easeOutCubic' }
+  }
+});
+
+// ─── TARGET CHART ───
+new Chart(document.getElementById('targetChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Sales','Ops','HR','Tech','Field'],
+    datasets: [{
+      data: [92, 78, 85, 96, 74],
+      backgroundColor: [C.accent, C.accent2, C.green, C.gold, C.accent3],
+      borderRadius: 8
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { grid: { color: 'rgba(180,190,210,0.25)' }, ticks: { color: C.muted, callback: v => v + '%' }, max: 100 },
+      y: { grid: { display: false }, ticks: { color: C.muted } }
+    },
+    animation: { duration: 1400, easing: 'easeOutBack' }
+  }
+});
+
+// ─── GROWTH CHART ───
+new Chart(document.getElementById('growthChart'), {
+  type: 'line',
+  data: {
+    labels: ['Dec','Jan','Feb','Mar','Apr','May'],
+    datasets: [{
+      data: [198,210,215,228,238,247],
+      borderColor: C.accent2, borderWidth: 2.5,
+      fill: true, tension: 0.4,
+      backgroundColor: 'rgba(124,77,247,0.1)',
+      pointBackgroundColor: C.accent2,
+      pointRadius: 4, pointHoverRadius: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false }, ticks: { color: C.muted } },
+      y: { grid: { color: 'rgba(180,190,210,0.25)' }, ticks: { color: C.muted }, min: 180 }
+    },
+    animation: { duration: 1600, easing: 'easeInOutQuart' }
+  }
+});
+
+// ─── LEADERBOARD DATA ───
+const lbData = [
+  { name: 'Riya Sharma', dept: 'Sales', pct: 112, earning: '₹28,450', color: '#4f6ef7', rank: 1 },
+  { name: 'Arjun Mehta', dept: 'Field Ops', pct: 104, earning: '₹24,200', color: '#7c4df7', rank: 2 },
+  { name: 'Priya Joshi', dept: 'Sales', pct: 97, earning: '₹22,900', color: '#f74d8a', rank: 3 },
+  { name: 'Karan Singh', dept: 'Tech', pct: 91, earning: '₹21,600', color: '#27ae60', rank: 4 },
+  { name: 'Neha Patel', dept: 'Operations', pct: 85, earning: '₹19,800', color: '#f5a623', rank: 5 },
+  { name: 'Amit Kumar', dept: 'Field Ops', pct: 78, earning: '₹18,200', color: '#e74c3c', rank: 6 },
+];
+const rankClass = r => r === 1 ? 'gold' : r === 2 ? 'silver' : r === 3 ? 'bronze' : '';
+const lbBody = document.getElementById('lbBody');
+lbData.forEach((e, i) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="lb-rank ${rankClass(e.rank)}">${e.rank}</span></td>
+    <td>
+      <div style="display:flex;align-items:center">
+        <span class="lb-avatar" style="background:${e.color}">${e.name[0]}</span>
+        <div>
+          <div class="lb-name">${e.name}</div>
+          <div class="lb-dept">${e.dept}</div>
+        </div>
+      </div>
+    </td>
+    <td>
+      <div class="lb-progress-wrap">
+        <div class="lb-progress-track">
+          <div class="lb-progress-fill" style="width:0%" data-width="${Math.min(e.pct, 100)}%"></div>
+        </div>
+        <div class="lb-pct">${e.pct}%</div>
+      </div>
+    </td>
+    <td style="text-align:right">
+      <div class="lb-earning">${e.earning}</div>
+      <div class="lb-earn-sub">${e.pct >= 100 ? '✦ Bonus Unlocked' : `${e.pct}% of target`}</div>
+    </td>
+  `;
+  lbBody.appendChild(tr);
+});
+// Animate progress bars
+setTimeout(() => {
+  document.querySelectorAll('.lb-progress-fill[data-width]').forEach((bar, i) => {
+    setTimeout(() => { bar.style.width = bar.dataset.width; }, i * 100);
+  });
+}, 600);
+</script>
+</body>
+</html>
